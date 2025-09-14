@@ -30,13 +30,13 @@ export default function ProductsPage() {
       }
 
       try {
-        let res = await fetch("http://127.0.0.1:8000/api/products/", {
+        let res = await fetch("${process.env.NEXT_PUBLIC_API_URL}/api/products/", {
           headers: { Authorization: `Bearer ${access}` },
         })
 
         if (res.status === 401 && refresh) {
           // Try refreshing access token
-          const refreshRes = await fetch("http://127.0.0.1:8000/api/auth/token/refresh/", {
+          const refreshRes = await fetch("${process.env.NEXT_PUBLIC_API_URL}/api/auth/token/refresh/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ refresh }),
@@ -47,7 +47,7 @@ export default function ProductsPage() {
             localStorage.setItem("access", data.access)
 
             // Retry original request with new access token
-            res = await fetch("http://127.0.0.1:8000/api/products/", {
+            res = await fetch("${process.env.NEXT_PUBLIC_API_URL}/api/products/", {
               headers: { Authorization: `Bearer ${data.access}` },
             })
           } else {
