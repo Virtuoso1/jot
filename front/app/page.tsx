@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge"
 import { Star, Download, Shield, Users, CheckCircle, Heart, BookOpen } from "lucide-react"
 import Link from "next/link"
+import Navbar from "@/components/Navbar"
 
 const featuredProducts = [
   {
@@ -15,7 +16,7 @@ const featuredProducts = [
     rating: 4.9,
     reviews: 1247,
     downloads: 5000,
-    image: "/digital-planner-calendar.png",
+    image: "http://127.0.0.1:8000/media/products/digital-planner-calendar.png",
     category: "Planner",
     downloadLimit: 3,
     gender: "unisex",
@@ -30,7 +31,7 @@ const featuredProducts = [
     rating: 4.8,
     reviews: 892,
     downloads: 3200,
-    image: "/zen-mindfulness-journal.png",
+    image: "http://127.0.0.1:8000/media/products/zen-mindfulness-journal.png",
     category: "Journal",
     downloadLimit: 5,
     gender: "feminine",
@@ -45,7 +46,7 @@ const featuredProducts = [
     rating: 4.7,
     reviews: 634,
     downloads: 1800,
-    image: "/business-workbook.png",
+    image: "http://127.0.0.1:8000/media/products/business-workbook.png",
     category: "Workbook",
     downloadLimit: 2,
     gender: "masculine",
@@ -60,7 +61,7 @@ const featuredProducts = [
     rating: 4.9,
     reviews: 2156,
     downloads: 8500,
-    image: "/colorful-student-planner.png",
+    image: "http://127.0.0.1:8000/media/products/colorful-student-planner_x09bDRx.png",
     category: "Planner",
     downloadLimit: 4,
     gender: "unisex",
@@ -93,45 +94,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Heart className="h-8 w-8 text-accent fill-accent" />
-              <div>
-                <h1 className="text-2xl font-bold font-[family-name:var(--font-manrope)]">Just One Thought</h1>
-                <p className="text-sm opacity-90">J.O.T</p>
-              </div>
-            </div>
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link href="/products" className="hover:text-accent transition-colors">
-                Products
-              </Link>
-              <Link href="/categories" className="hover:text-accent transition-colors">
-                Categories
-              </Link>
-              <Link href="/about" className="hover:text-accent transition-colors">
-                About
-              </Link>
-              <Link href="/contact" className="hover:text-accent transition-colors">
-                Contact
-              </Link>
-            </nav>
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="outline"
-                size="sm"
-                className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
-              >
-                Sign In
-              </Button>
-              <Button size="sm" className="bg-accent hover:bg-accent/90" asChild>
-                <Link href="/checkout">Cart (2)</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navbar/>
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-secondary/20 via-background to-primary/10 py-20">
@@ -153,14 +116,14 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground" asChild>
-              <Link href="/checkout">Start Your Journey</Link>
+              <Link href="/signup">Start Your Journey</Link>
             </Button>
             <Button
               variant="outline"
               size="lg"
               className="border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
             >
-              Explore Collections
+              <Link href="/products">Explore Collections</Link>
             </Button>
           </div>
 
@@ -261,20 +224,7 @@ export default function HomePage() {
                     {product.downloads.toLocaleString()} downloads
                   </div>
                 </CardContent>
-                <CardFooter className="p-4 pt-0">
-                  <Button
-                    className={`w-full ${
-                      product.gender === "feminine"
-                        ? "bg-accent hover:bg-accent/90 text-accent-foreground"
-                        : product.gender === "masculine"
-                          ? "bg-primary hover:bg-primary/90 text-primary-foreground"
-                          : "bg-secondary hover:bg-secondary/90 text-secondary-foreground"
-                    }`}
-                    asChild
-                  >
-                    <Link href="/checkout">Add to Cart</Link>
-                  </Button>
-                </CardFooter>
+               
               </Card>
             ))}
           </div>
@@ -325,7 +275,7 @@ export default function HomePage() {
             Join the J.O.T community and discover how one thought can transform your entire day.
           </p>
           <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground" asChild>
-            <Link href="/checkout">Begin Your Story</Link>
+            <Link href="/signup">Begin Your Story</Link>
           </Button>
         </div>
       </section>
@@ -348,22 +298,22 @@ export default function HomePage() {
               <h5 className="font-semibold mb-4">Products</h5>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
-                  <Link href="/planners" className="hover:text-foreground transition-colors">
+                  <Link href="/coming-soon" className="hover:text-foreground transition-colors">
                     Planners
                   </Link>
                 </li>
                 <li>
-                  <Link href="/journals" className="hover:text-foreground transition-colors">
+                  <Link href="/coming-soon" className="hover:text-foreground transition-colors">
                     Journals
                   </Link>
                 </li>
                 <li>
-                  <Link href="/workbooks" className="hover:text-foreground transition-colors">
+                  <Link href="/coming-soon" className="hover:text-foreground transition-colors">
                     Workbooks
                   </Link>
                 </li>
                 <li>
-                  <Link href="/bundles" className="hover:text-foreground transition-colors">
+                  <Link href="/coming-soon" className="hover:text-foreground transition-colors">
                     Bundles
                   </Link>
                 </li>
@@ -373,22 +323,22 @@ export default function HomePage() {
               <h5 className="font-semibold mb-4">Support</h5>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
-                  <Link href="/help" className="hover:text-foreground transition-colors">
+                  <Link href="/coming-soon" className="hover:text-foreground transition-colors">
                     Help Center
                   </Link>
                 </li>
                 <li>
-                  <Link href="/downloads" className="hover:text-foreground transition-colors">
+                  <Link href="/coming-soon" className="hover:text-foreground transition-colors">
                     My Downloads
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="hover:text-foreground transition-colors">
+                  <Link href="/coming-soon" className="hover:text-foreground transition-colors">
                     Contact Us
                   </Link>
                 </li>
                 <li>
-                  <Link href="/refunds" className="hover:text-foreground transition-colors">
+                  <Link href="/coming-soon" className="hover:text-foreground transition-colors">
                     Refund Policy
                   </Link>
                 </li>
@@ -398,23 +348,18 @@ export default function HomePage() {
               <h5 className="font-semibold mb-4">Company</h5>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
-                  <Link href="/about" className="hover:text-foreground transition-colors">
+                  <Link href="/coming-soon" className="hover:text-foreground transition-colors">
                     About Us
                   </Link>
                 </li>
                 <li>
-                  <Link href="/privacy" className="hover:text-foreground transition-colors">
+                  <Link href="/coming-soon" className="hover:text-foreground transition-colors">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="hover:text-foreground transition-colors">
+                  <Link href="/coming-soon" className="hover:text-foreground transition-colors">
                     Terms of Service
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/affiliate" className="hover:text-foreground transition-colors">
-                    Affiliate Program
                   </Link>
                 </li>
               </ul>
