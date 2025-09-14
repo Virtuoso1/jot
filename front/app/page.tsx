@@ -61,7 +61,7 @@ const featuredProducts = [
     rating: 4.9,
     reviews: 2156,
     downloads: 8500,
-    image: `${process.env.NEXT_PUBLIC_API_URL}/media/products/colorful-student-planner_x09bDRx.png`,
+    image: `${process.env.NEXT_PUBLIC_API_URL}/media/products/colorful-student-planner_41AsNP6.png`,
     category: "Planner",
     downloadLimit: 4,
     gender: "unisex",
