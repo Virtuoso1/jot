@@ -121,7 +121,7 @@ export default function ProductsPage() {
               </div>
             )}
             <p className="mt-2 text-sm text-gray-600">{product.description}</p>
-            <p className="mt-1 text-sm font-medium">${product.price}</p>
+            <p className="mt-1 text-sm font-medium">Ksh.{product.price}</p>
           </CardContent>
           <CardFooter>
             <Button className="w-full"><Link href="/coming-soon">Add to Cart</Link></Button>
