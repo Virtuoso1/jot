@@ -72,7 +72,7 @@ export default function Navbar() {
             )}
 
             <Button size="sm" className="bg-accent hover:bg-accent/90" asChild>
-              <Link href="/coming-soon">Cart (2)</Link>
+              <Link href="/cart">Cart</Link>
             </Button>
           </div>
         </div>

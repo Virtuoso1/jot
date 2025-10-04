@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, Cart, CartItem,Order, OrderItem
+from .models import Review, Product, Cart, CartItem,Order, OrderItem
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -28,3 +28,8 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
 
 admin.site.register(Order, OrderAdmin)
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ("id", "product", "user", "rating", "created_at")
+    list_filter = ("rating", "created_at")
+    search_fields = ("product__name", "user__username", "comment")

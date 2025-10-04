@@ -1,5 +1,7 @@
 from django.db import models
+from django.db.models import Avg
 from django.conf import settings
+from django.contrib.auth.models import User
 class Product(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
@@ -7,6 +9,8 @@ class Product(models.Model):
     image = models.ImageField(upload_to="products/")
     created_at = models.DateTimeField(auto_now_add=True)
     quantity = models.PositiveIntegerField(default=0)
+    def average_rating(self):
+        return self.reviews.aggregate(avg=Avg("rating"))["avg"] or 0
     def __str__(self):
         return self.name
     
@@ -49,3 +53,16 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product.name} × {self.quantity}"
+    
+class Review(models.Model):
+    product = models.ForeignKey(Product, related_name="reviews", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField(default=1)  # 1–5 stars
+    comment = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("product", "user")  # one review per user per product
+
+    def __str__(self):
+        return f"Review {self.rating}★ for {self.product.name} by {self.user.username}"

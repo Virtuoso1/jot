@@ -2,8 +2,8 @@ from rest_framework import generics, status, viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .models import Product, Cart, CartItem, Order, OrderItem
-from .serializers import ProductSerializer, CartSerializer
+from .models import Product,Review, Cart, CartItem, Order, OrderItem
+from .serializers import ProductSerializer, ReviewSerializer
 from django.shortcuts import get_object_or_404
 import requests
 from django.http import JsonResponse
@@ -134,12 +134,22 @@ def checkout(request):
 
     # Move items from cart to order
     for item in cart.items.all():
+        prod = item.product
         OrderItem.objects.create(
             order=order,
             product=item.product,
             quantity=item.quantity,
             price=item.product.price,
         )
+        if prod.quantity >= item.quantity:
+            prod.quantity -= item.quantity
+            prod.save()
+        else:
+            # If stock is not enough, rollback and cancel order
+            order.delete()
+            return Response({
+                "error": f"Not enough stock for {product.name}. Available: {product.quantity}"
+            }, status=400)
 
     # Clear cart
     cart.items.all().delete()
@@ -149,3 +159,29 @@ def checkout(request):
         "order_id": order.id,
         "total_amount": str(order.total_amount)  # send amount too
     })
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def submit_review(request, cart_item_id):
+    try:
+        cart_item = CartItem.objects.get(id=cart_item_id, cart__user=request.user)
+    except CartItem.DoesNotExist:
+        return Response({"error": "Cart item not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    rating = request.data.get("rating")
+    comment = request.data.get("comment")
+    
+    if not rating:
+        return Response({"error": "Rating is required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    review = Review.objects.create(
+            product=cart_item.product,
+            user=request.user,
+            rating=rating,
+            comment=comment
+        )
+    
+    return Response(
+            {"message": "Review submitted successfully", "review_id": review.id},
+            status=status.HTTP_201_CREATED
+        )

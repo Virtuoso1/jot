@@ -1,11 +1,20 @@
 from rest_framework import serializers
-from .models import Product, Cart, CartItem, Order, OrderItem
+from .models import Review,Product, Cart, CartItem, Order, OrderItem
+class ReviewSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
 
+    class Meta:
+        model = Review
+        fields = ["id", "product", "user", "rating", "comment", "created_at"]
+        read_only_fields = ["user", "created_at"]
 class ProductSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True)
+    average_rating = serializers.SerializerMethodField()
     class Meta:
         model = Product
         fields = "__all__"
+    def get_average_rating(self, obj):
+        return round(obj.average_rating(), 1)
 class CartItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source="product.name", read_only=True)
     product_price = serializers.DecimalField(source="product.price", max_digits=10, decimal_places=2, read_only=True)
