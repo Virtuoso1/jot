@@ -91,6 +91,9 @@ export default function ProductsPage() {
 
           {/* Nav links */}
           <nav className="hidden md:flex items-center space-x-6">
+            <Link href="/cart" className="hover:text-accent transition-colors">
+              Cart
+            </Link>
             <Link href="/" className="hover:text-accent transition-colors">
               Home
             </Link>
@@ -124,7 +127,20 @@ export default function ProductsPage() {
             <p className="mt-1 text-sm font-medium">Ksh.{product.price}</p>
           </CardContent>
           <CardFooter>
-            <Button className="w-full"><Link href="/coming-soon">Add to Cart</Link></Button>
+            <Button className="w-full"
+              onClick={async () => {
+              const token = localStorage.getItem("access")
+              await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cart/add/`, {
+              method: "POST",
+              headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`,
+              },
+              body: JSON.stringify({ product_id: product.id, quantity: 1 }),
+            })
+              alert("Added to cart!")
+            }}
+            >Add to Cart</Button>
           </CardFooter>
         </Card>
         ))}

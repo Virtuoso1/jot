@@ -60,9 +60,14 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
 ]
 CORS_ALLOW_ALL_ORIGINS = True  
-
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
 ROOT_URLCONF = 'backend.urls'
-
+PESAPAL_CONSUMER_KEY = "qkio1BGGYAXTu2JOfm7XSXNruoZsrqEW"
+PESAPAL_CONSUMER_SECRET = "osGQ364R49cXKeOYSpaOnT++rHs="
+PESAPAL_BASE_URL = "https://cybqa.pesapal.com/pesapalv3/api"
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

@@ -111,9 +111,8 @@ export default function HomePage() {
             <span className="text-accent">Plan Every Dream</span>
           </h2>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-            From soft, feminine designs to bold, masculine layouts - our digital journals and planners are crafted for
-            every personality. One thought at a time, build the life you envision.
-          </p>
+            From soft, feminine designs to bold, masculine layouts - our journals and planners (digital and physical copies) are crafted for every personality. One thought at a time, build the life you envision.
+Write it. Plan it. Slay it.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground" asChild>
               <Link href="/signup">Start Your Journey</Link>
