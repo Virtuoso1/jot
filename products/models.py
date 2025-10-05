@@ -9,6 +9,7 @@ class Product(models.Model):
     image = models.ImageField(upload_to="products/")
     created_at = models.DateTimeField(auto_now_add=True)
     quantity = models.PositiveIntegerField(default=0)
+    is_featured = models.BooleanField(default=False)
     def average_rating(self):
         return self.reviews.aggregate(avg=Avg("rating"))["avg"] or 0
     def __str__(self):

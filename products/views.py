@@ -148,7 +148,7 @@ def checkout(request):
             # If stock is not enough, rollback and cancel order
             order.delete()
             return Response({
-                "error": f"Not enough stock for {product.name}. Available: {product.quantity}"
+                "error": f"Not enough stock for {prod.name}. Available: {prod.quantity}"
             }, status=400)
 
     # Clear cart
@@ -159,7 +159,11 @@ def checkout(request):
         "order_id": order.id,
         "total_amount": str(order.total_amount)  # send amount too
     })
-
+@api_view(["GET"])
+def featured_products(request):
+    featured = Product.objects.filter(is_featured=True)
+    serializer = ProductSerializer(featured, many=True, context={"request": request})
+    return Response(serializer.data)
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def submit_review(request, cart_item_id):
