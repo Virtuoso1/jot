@@ -15,4 +15,6 @@ urlpatterns = [
     path("featured/", views.featured_products, name="featured_products"),
     path("pesapal/initiate/", views.pesapal_test, name="pesapal_initiate"),
     path("pesapal/ipn/", views.pesapal_ipn, name="pesapal_ipn"),
+path("pesapal/callback/", views.pesapal_callback_api, name="pesapal_callback_api"),
+
 ]

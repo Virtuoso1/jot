@@ -20,12 +20,56 @@ CONSUMER_KEY = "yILI5XZrO9FY6NagVBQH2LL7M7Ah5Oak"
 CONSUMER_SECRET = "flOPF4Z2WyspBP7hE/ehECvcEgk="
 @csrf_exempt
 def pesapal_ipn(request):
-    if request.method == "POST":
-        # Pesapal sends data like order_id, status, etc.
-        print("IPN Payload:", request.body.decode())
-        # TODO: Update your order status in DB here
-        return HttpResponse("IPN received", status=200)
-    return HttpResponse("Only POST allowed", status=405)
+    if request.method != "POST":
+        return JsonResponse({"error": "POST only"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        order_tracking_id = data.get("OrderTrackingId")
+        merchant_reference = data.get("OrderMerchantReference")
+    except Exception as e:
+        return JsonResponse({"error": f"Invalid payload: {str(e)}"}, status=400)
+
+    if not order_tracking_id or not merchant_reference:
+        return JsonResponse({"error": "Missing order identifiers"}, status=400)
+
+    # 1. Get token
+    token_res = requests.post(
+        f"{PESAPAL_BASE}/api/Auth/RequestToken",
+        json={"consumer_key": CONSUMER_KEY, "consumer_secret": CONSUMER_SECRET},
+        headers={"Content-Type": "application/json", "Accept": "application/json"},
+    )
+    token = token_res.json().get("token")
+    if not token:
+        return JsonResponse({"error": "Failed to authenticate with Pesapal"}, status=500)
+
+    # 2. Query payment status
+    status_res = requests.get(
+        f"{PESAPAL_BASE}/api/Transactions/GetTransactionStatus?orderTrackingId={order_tracking_id}",
+        headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
+    )
+
+    try:
+        status_json = status_res.json()
+    except Exception:
+        return JsonResponse({"error": "Invalid status response", "raw": status_res.text}, status=500)
+
+    payment_status = status_json.get("payment_status_description")  # e.g. "COMPLETED", "FAILED"
+
+    # 3. Update your order
+    try:
+        order = Order.objects.get(id=merchant_reference)
+        if payment_status and payment_status.upper() == "COMPLETED":
+            order.status = "paid"
+            
+        elif payment_status and payment_status.upper() in ["FAILED", "CANCELLED"]:
+            order.status = "cancelled"
+        order.save()
+        # You could also handle FAILED / CANCELLED if you like
+    except Order.DoesNotExist:
+        return JsonResponse({"error": f"Order {merchant_reference} not found"}, status=404)
+
+    return JsonResponse({"message": "IPN processed", "status": payment_status})
 @csrf_exempt
 def pesapal_test(request):
     if request.method != "POST":
@@ -81,6 +125,42 @@ def pesapal_test(request):
         return JsonResponse(order_res.json(), safe=False, status=order_res.status_code)
     except Exception:
         return JsonResponse({"error": "Pesapal did not return JSON", "raw": order_res.text},status=order_res.status_code,)
+# views.py
+@csrf_exempt
+def pesapal_callback_api(request):
+    merchant_reference = request.GET.get("OrderMerchantReference")
+    order_tracking_id = request.GET.get("OrderTrackingId")
+
+    if not merchant_reference or not order_tracking_id:
+        return JsonResponse({"status": "error", "message": "Missing reference"}, status=400)
+
+    # 1. Get token
+    token_res = requests.post(
+        f"{PESAPAL_BASE}/api/Auth/RequestToken",
+        json={"consumer_key": CONSUMER_KEY, "consumer_secret": CONSUMER_SECRET},
+        headers={"Content-Type": "application/json", "Accept": "application/json"},
+    )
+    token = token_res.json().get("token")
+
+    # 2. Query status
+    status_res = requests.get(
+        f"{PESAPAL_BASE}/api/Transactions/GetTransactionStatus?orderTrackingId={order_tracking_id}",
+        headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
+    )
+    status_json = status_res.json()
+    payment_status = status_json.get("payment_status_description", "UNKNOWN")
+
+    # 3. Update order
+    try:
+        order = Order.objects.get(id=int(merchant_reference))
+        if payment_status.upper() == "COMPLETED":
+            order.status = "paid"
+            order.save()
+    except Order.DoesNotExist:
+        return JsonResponse({"status": "error", "message": "Order not found"}, status=404)
+
+    return JsonResponse({"status": payment_status.lower(), "message": f"Your payment is {payment_status}"})
+
 
 
 # Public: list & detail

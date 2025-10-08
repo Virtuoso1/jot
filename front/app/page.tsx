@@ -62,7 +62,7 @@ const [loading, setLoading] = useState(false)
     setLoading(true)
     try {
       // 🔑 Hardcoded test order details
-      const order_id = `TEST-${Date.now()}`
+      const order_id = `1`
       const amount = 1.0
       const phone = "254703385412" // replace with your test phone
       const email = "waynekimutai20@gmail.com"
