@@ -30,16 +30,23 @@ def pesapal_ipn(request):
 def pesapal_test(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST only"}, status=405)
-
-    data = json.loads(request.body)
-
+    try:
+        data = json.loads(request.body)
+    except Exception as e:
+        return JsonResponse({"error": f"Invalid JSON body: {str(e)}"}, status=400)
+    
     # 1. Get token
     token_res = requests.post(
         f"{PESAPAL_BASE}/api/Auth/RequestToken",
         json={"consumer_key": CONSUMER_KEY, "consumer_secret": CONSUMER_SECRET},
         headers={"Content-Type": "application/json", "Accept": "application/json"},
-    )
-    token = token_res.json().get("token")
+    ) 
+    try:
+        token_json = token_res.json()
+    except Exception:
+        return JsonResponse({"error": f"Token response not JSON", "raw": token_res.text}, status=500)
+    
+    token = token_json.get("token")
     if not token:
         return JsonResponse({"error": "Failed to get token"}, status=500)
 
@@ -70,8 +77,11 @@ def pesapal_test(request):
             "Accept": "application/json",
         },
     )
+    try:
+        return JsonResponse(order_res.json(), safe=False, status=order_res.status_code)
+    except Exception:
+        return JsonResponse({"error": "Pesapal did not return JSON", "raw": order_res.text},status=order_res.status_code,)
 
-    return JsonResponse(order_res.json(), safe=False)
 
 # Public: list & detail
 class ProductListView(generics.ListAPIView):
