@@ -1,6 +1,5 @@
 "use client"; // 👈 Required so hooks work in App Router
-export const dynamic = "force-dynamic";  // 👈 ensure it's runtime-only
-export const revalidate = 0; 
+
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation"; // ✅ replaces next/router
 
