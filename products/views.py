@@ -1,3 +1,4 @@
+import json
 from rest_framework import generics, status, viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -6,14 +7,71 @@ from .models import Product,Review, Cart, CartItem, Order, OrderItem
 from .serializers import ProductSerializer, ReviewSerializer
 from django.shortcuts import get_object_or_404
 import requests
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 from .utils import get_pesapal_token
-import json
+import logging
 import requests
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+
+PESAPAL_BASE = "https://pay.pesapal.com/v3"
+CONSUMER_KEY = "yILI5XZrO9FY6NagVBQH2LL7M7Ah5Oak"
+CONSUMER_SECRET = "flOPF4Z2WyspBP7hE/ehECvcEgk="
+@csrf_exempt
+def pesapal_ipn(request):
+    if request.method == "POST":
+        # Pesapal sends data like order_id, status, etc.
+        print("IPN Payload:", request.body.decode())
+        # TODO: Update your order status in DB here
+        return HttpResponse("IPN received", status=200)
+    return HttpResponse("Only POST allowed", status=405)
+@csrf_exempt
+def pesapal_test(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST only"}, status=405)
+
+    data = json.loads(request.body)
+
+    # 1. Get token
+    token_res = requests.post(
+        f"{PESAPAL_BASE}/api/Auth/RequestToken",
+        json={"consumer_key": CONSUMER_KEY, "consumer_secret": CONSUMER_SECRET},
+        headers={"Content-Type": "application/json", "Accept": "application/json"},
+    )
+    token = token_res.json().get("token")
+    if not token:
+        return JsonResponse({"error": "Failed to get token"}, status=500)
+
+    # 2. Submit order (hardcoded minimal payload)
+    payload = {
+        "id": data.get("order_id"),
+        "currency": "KES",
+        "amount": float(data.get("amount", 1.0)),
+        "description": "Test payment",
+        "callback_url": "https://example.com/callback",
+        "notification_id": "11e5b5b9-d391-4cb4-a552-db3cc3ef3548",
+        "billing_address": {
+            "email_address": data.get("email"),
+            "phone_number": data.get("phone"),
+            "first_name": "Test",
+            "last_name": "User",
+            "line_1": "N/A",
+            "country_code": "KE",
+        },
+    }
+
+    order_res = requests.post(
+        f"{PESAPAL_BASE}/api/Transactions/SubmitOrderRequest",
+        json=payload,
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+    )
+
+    return JsonResponse(order_res.json(), safe=False)
 
 # Public: list & detail
 class ProductListView(generics.ListAPIView):

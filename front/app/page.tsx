@@ -54,6 +54,44 @@ const testimonials = [
   },
 ]
 
+// 🔹 Pesapal Test Payment Handle
+// r
+const [loading, setLoading] = useState(false)
+
+  const handleTestPayment = async () => {
+    setLoading(true)
+    try {
+      // 🔑 Hardcoded test order details
+      const order_id = `TEST-${Date.now()}`
+      const amount = 1.0
+      const phone = "254703385412" // replace with your test phone
+      const email = "waynekimutai20@gmail.com"
+
+      // Call your backend (not Pesapal directly in frontend for security!)
+      // This assumes you have /api/pesapal-test/ set up in your Django backend
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/pesapal/initiate/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_id, amount, phone, email }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Failed to init payment")
+
+      console.log("Pesapal test response:", data)
+
+      if (data.redirect_url) {
+        window.location.href = data.redirect_url
+      } else {
+        alert("No redirect URL received")
+      }
+    } catch (err: any) {
+      alert(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -67,6 +105,14 @@ const testimonials = [
             <div className="flex items-center space-x-2 bg-secondary/20 px-4 py-2 rounded-full">
               <BookOpen className="h-5 w-5 text-primary" />
               <span className="text-sm font-medium text-primary">Thoughtfully Designed for Everyone</span>
+            <h1 className="text-2xl font-bold mb-4">Pesapal Test</h1>
+                  <button
+                    onClick={handleTestPayment}
+                    disabled={loading}
+                    className="bg-green-600 text-white px-4 py-2 rounded"
+                  >
+                    {loading ? "Processing..." : "Test"}
+                  </button>
             </div>
           </div>
           <h2 className="text-5xl font-bold font-[family-name:var(--font-manrope)] mb-6 text-foreground">

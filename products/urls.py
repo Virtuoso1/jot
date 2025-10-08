@@ -13,5 +13,6 @@ urlpatterns = [
     path("<int:pk>/delete/", ProductDeleteView.as_view(), name="product-delete"),
     path("cart/<int:cart_item_id>/review/", views.submit_review, name="submit_review"),
     path("featured/", views.featured_products, name="featured_products"),
-
+    path("pesapal/initiate/", views.pesapal_test, name="pesapal_initiate"),
+    path("pesapal/ipn/", views.pesapal_ipn, name="pesapal_ipn"),
 ]
