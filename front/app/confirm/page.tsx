@@ -1,5 +1,7 @@
+"use client"; // 👈 Required so hooks work in App Router
+
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useSearchParams } from "next/navigation"; // ✅ replaces next/router
 
 interface PaymentResponse {
   status: string;
@@ -7,8 +9,9 @@ interface PaymentResponse {
 }
 
 export default function PaymentConfirm() {
-  const router = useRouter();
-  const { OrderMerchantReference, OrderTrackingId } = router.query;
+  const searchParams = useSearchParams();
+  const OrderMerchantReference = searchParams.get("OrderMerchantReference");
+  const OrderTrackingId = searchParams.get("OrderTrackingId");
 
   const [status, setStatus] = useState<string>("loading");
   const [message, setMessage] = useState<string>("");
@@ -19,12 +22,16 @@ export default function PaymentConfirm() {
     const fetchStatus = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_PUBLIC_URL}/api/pesapal/callback/?OrderMerchantReference=${OrderMerchantReference}&OrderTrackingId=${OrderTrackingId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/pesapal/callback/?OrderMerchantReference=${OrderMerchantReference}&OrderTrackingId=${OrderTrackingId}`
         );
 
+        if (!res.ok) {
+          throw new Error("Failed to fetch payment status");
+        }
+
         const data: PaymentResponse = await res.json();
-        setStatus(data.status);
-        setMessage(data.message);
+        setStatus(data.status?.toLowerCase());
+        setMessage(data.message || "");
       } catch (err) {
         setStatus("error");
         setMessage("Something went wrong checking payment status.");
@@ -45,7 +52,7 @@ export default function PaymentConfirm() {
         </>
       )}
 
-      {(status === "failed" || status === "cancelled") && (
+      {(status === "failed" || status === "cancelled" || status === "error") && (
         <>
           <h1 style={{ color: "red" }}>❌ Payment Failed</h1>
           <p>{message}</p>
@@ -55,7 +62,8 @@ export default function PaymentConfirm() {
       {status !== "loading" &&
         status !== "completed" &&
         status !== "failed" &&
-        status !== "cancelled" && (
+        status !== "cancelled" &&
+        status !== "error" && (
           <>
             <h1 style={{ color: "orange" }}>⏳ Pending</h1>
             <p>{message}</p>

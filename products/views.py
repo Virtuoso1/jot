@@ -100,7 +100,7 @@ def pesapal_test(request):
         "currency": "KES",
         "amount": float(data.get("amount", 1.0)),
         "description": "Test payment",
-        "callback_url": "https://example.com/callback",
+        "callback_url": "https://justonethoughtjot.com/confirm",
         "notification_id": "11e5b5b9-d391-4cb4-a552-db3cc3ef3548",
         "billing_address": {
             "email_address": data.get("email"),
